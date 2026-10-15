@@ -18,9 +18,26 @@ const FASHION_FILTER_OPTIONS = [
   { label: 'Loafers', terms: ['loafer', 'loafers'] },
 ];
 
+const getAvailableFashionFilters = (products) => ['All', ...FASHION_FILTER_OPTIONS
+  .filter((option) => products.some((product) => {
+    const searchableFashionText = [
+      product.name,
+      product.description,
+      product.measurements?.type,
+      product.measurements?.scrapedTitle,
+    ]
+      .filter(Boolean)
+      .join(' ')
+      .toLowerCase();
+
+    return option.terms.some((term) => searchableFashionText.includes(term));
+  }))
+  .map((option) => option.label)];
+
 const ProductListingPage = () => {
   const [searchParams] = useSearchParams();
   const { 
+    products: catalogProducts,
     isLoading, 
     fetchProducts, 
     getFilteredProducts, 
@@ -45,11 +62,7 @@ const ProductListingPage = () => {
     });
     
     window.scrollTo(0, 0);
-  }, [searchParams, fetchProducts, setFilters]);
-
-  useEffect(() => {
-    setSortBy(isFootwearBrowse ? 'price-low' : 'featured');
-  }, [isFootwearBrowse]);
+  }, [categoryParam, searchParam, fetchProducts, setFilters]);
 
   // Apply sorting to filtered products
   const products = getFilteredProducts();
@@ -73,30 +86,9 @@ const ProductListingPage = () => {
       ? `Find products matching ${searchParam} on ${siteName} across electronics, fashion, beauty, home, and more.`
       : `${siteName} brings together electronics, fashion, beauty, home essentials, toys, appliances, and daily deals in one online shopping destination.`;
   const showFashionFilters = categoryParam === 'Fashion' || products.some((product) => product.category === 'Fashion');
-  const fashionProducts = showFashionFilters
-    ? useProductStore.getState().products.filter((product) => product.category === 'Fashion')
-    : [];
-  const availableFashionFilters = ['All', ...FASHION_FILTER_OPTIONS
-    .filter((option) => fashionProducts.some((product) => {
-      const searchableFashionText = [
-        product.name,
-        product.description,
-        product.measurements?.type,
-        product.measurements?.scrapedTitle,
-      ]
-        .filter(Boolean)
-        .join(' ')
-        .toLowerCase();
-
-      return option.terms.some((term) => searchableFashionText.includes(term));
-    }))
-    .map((option) => option.label)];
-
-  useEffect(() => {
-    if (!availableFashionFilters.includes(filters.fashionType)) {
-      setFilters({ fashionType: 'All' });
-    }
-  }, [availableFashionFilters, filters.fashionType, setFilters]);
+  const availableFashionFilters = showFashionFilters
+    ? getAvailableFashionFilters(catalogProducts.filter((product) => product.category === 'Fashion'))
+    : ['All'];
 
   return (
     <div className="min-h-screen bg-background pt-8 pb-20">

@@ -117,22 +117,24 @@ npm run scrape:flipkart
 
 Flipkart frequently changes markup and may rate-limit or block scraping, so selectors in this script may need updates over time.
 
-## Deploy To Netlify
+## Deploy To Vercel
 
-This app is ready for Netlify deployment.
+This app is ready for Vercel deployment. Import the repository into Vercel and deploy; the checked-in `vercel.json` supplies the build command, output directory, security headers, and SPA route fallback.
 
 Build settings:
 
 ```bash
 Build command: npm run build
-Publish directory: dist
+Output directory: dist
+Install command: npm ci
 ```
 
-SPA routing is configured with both:
+No environment variables are required for the storefront build. The RapidAPI variables in `.env.example` are only used by the optional catalog-fetching scripts.
+
+SPA routing is configured in:
 
 ```bash
-netlify.toml
-public/_redirects
+vercel.json
 ```
 
 So deep links like:
@@ -142,3 +144,14 @@ So deep links like:
 ```
 
 will resolve correctly after deployment.
+
+You can also deploy from the CLI:
+
+```bash
+npx vercel
+npx vercel --prod
+```
+
+## Deploy To Netlify
+
+Netlify remains supported through `netlify.toml` and `public/_redirects`.

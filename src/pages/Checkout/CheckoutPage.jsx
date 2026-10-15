@@ -14,6 +14,7 @@ const formatInr = (value) => `Rs ${Number(value || 0).toLocaleString('en-IN')}`;
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const phonePattern = /^[6-9]\d{9}$/;
 const pinCodePattern = /^\d{6}$/;
+const createGuestOrderId = () => `#ORD-${Date.now().toString().slice(-6)}`;
 
 const CheckoutPage = () => {
   const { items, getCartTotal, clearCart } = useCartStore();
@@ -102,7 +103,7 @@ const CheckoutPage = () => {
     const nextOrderConfirmation = orderResult.order
       ? { ...orderResult.order, paymentMethod }
       : {
-          id: `#ORD-${Date.now().toString().slice(-6)}`,
+          id: createGuestOrderId(),
           address: shippingAddress,
           paymentMethod,
         };
